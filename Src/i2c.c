@@ -21,8 +21,8 @@
 #include "i2c.h"
 
 /* USER CODE BEGIN 0 */
-lis3dh_t g_lis3dh;								//姿态传感器信息
-uint8_t lis3dh_buffer[6];	//姿态传感器信息所需buffer
+lis3dh_t g_lis3dh;
+uint8_t lis3dh_buffer[6];
 /* USER CODE END 0 */
 
 I2C_HandleTypeDef hi2c1;
@@ -158,21 +158,25 @@ HAL_StatusTypeDef lis3dh_init(lis3dh_t *lis3dh, I2C_HandleTypeDef *i2c, uint8_t 
 	return status;
 }
 
-
+#include "string.h"
+#include "stdio.h"
+extern UART_HandleTypeDef huart1;
 bool lis3dh_xyz_available(lis3dh_t *lis3dh) {
 	/*
 	 * Read STATUS_REG bit 2 (ZYXDA): New X, Y, Z data available.
 	 */
 	HAL_StatusTypeDef status;
 	status = lis3dh_read(lis3dh, REG_STATUS_REG, 1);
-	if (status != HAL_OK) return false;
-
+	
+	if (status != HAL_OK) 
+		return false;
 	return (lis3dh->buf[0] & 2) > 0;
 }
 
 HAL_StatusTypeDef lis3dh_read(lis3dh_t* lis3dh, uint16_t reg, uint16_t bufsize) {
 	//读一个LIS3DHTR的8位寄存器
-	if (bufsize > lis3dh->bufsize) return HAL_ERROR;
+	if (bufsize > lis3dh->bufsize) 
+		return HAL_ERROR;
 	return HAL_I2C_Mem_Read(lis3dh->i2c, lis3dh->i2c_addr | I2C_READ_BIT, reg, 1, lis3dh->buf, bufsize, TIMEOUT_MS);
 }
 

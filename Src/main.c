@@ -62,8 +62,14 @@ uint16_t LPUSART1_RX_STA=0;       //串口LP1接收状态标记：bit15，	接收完成标志；b
 uint8_t LPUSART1_RX_BUF[USART_REC_LEN];     //串口LP1完整数据接收缓冲
 uint8_t LPUSART1_TX_BUF[USART_REC_LEN];     //串口LP1完整数据发送缓冲
 uint8_t lp1_aRxBuffer[RXBUFFERSIZE];		//HAL库使用的串口LP1单字节接收缓冲
-						 
-extern lis3dh_t g_lis3dh;
+
+uint8_t NB_4G_State;		//通讯模式状态记录:1为4G，0为NB
+uint8_t Water_State;		//水浸状态记录：1为水浸，0为未水浸
+float Voleage;	//电池电量
+
+
+
+extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart1;
 /* USER CODE END PV */
 
@@ -101,7 +107,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-	lis3dh_init(&g_lis3dh, &hi2c1, lis3dh_buffer, 6);
+
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -114,6 +120,28 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	uint8_t len;
 	uint16_t times=0;
+		
+	HAL_StatusTypeDef status;
+	status = lis3dh_init(&g_lis3dh, &hi2c1, lis3dh_buffer, 6);
+	if(status != HAL_OK)
+		print_u1("lis3dh_init ok\r\n");
+	else
+		print_u1("lis3dh_init fail\r\n");
+
+	BEEP_On(1000);
+	
+	nb_module_init();
+//	if(status == HAL_OK)
+//	{
+//			HAL_UART_Transmit(&huart1,(uint8_t*)"LIS3 INIT OK\r\n",strlen("LIS3 INIT OK\r\n"),1000);	//发送接收到的数据
+//			while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		HAL_Delay(5);//等待发送结束
+//	}
+//	else{
+//			HAL_UART_Transmit(&huart1,(uint8_t*)"LIS3 INIT fail\r\n",strlen("LIS3 INIT OK\r\n"),1000);	//发送接收到的数据
+//			while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		HAL_Delay(5);//等待发送结束
+//	}
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -139,28 +167,33 @@ int main(void)
 //			HAL_Delay(100);
 //		}
 		//上位机发送给串口1的信息直接发给定位模块串口
-		if(USART1_RX_STA&0x8000){
-			HAL_UART_Transmit(&huart1,(uint8_t*)"\r\npc-mcu rev is: \r\n",strlen("\r\npc-mcu rev is: \r\n"),1000);	//发送接收到的数据
-			while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		HAL_Delay(5);//等待发送结束
-			len=USART1_RX_STA&0x3fff;//得到此次接收到的数据长度
-			//PC消息回显
-			HAL_Delay(5);
-			HAL_UART_Transmit(&huart1,(uint8_t*)USART1_RX_BUF,len,1000);
-			while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		HAL_Delay(5);//等待发送结束
-			//PC消息发给定位模块
+//		if(USART1_RX_STA&0x8000){
+//			HAL_UART_Transmit(&huart1,(uint8_t*)"\r\npc-mcu rev is: \r\n",strlen("\r\npc-mcu rev is: \r\n"),1000);	//发送接收到的数据
+//			while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		HAL_Delay(5);//等待发送结束
+//			len=USART1_RX_STA&0x3fff;//得到此次接收到的数据长度
+//			//PC消息回显
 //			HAL_Delay(5);
-//			HAL_UART_Transmit(&hlpuart1,(uint8_t*)USART1_RX_BUF,len,1000);
-//			while(__HAL_UART_GET_FLAG(&hlpuart1,UART_FLAG_TC)!=SET);		HAL_Delay(5);//等待发送结束			
-			
-			USART1_RX_STA=0;
-		}else
-		{
-			times++;
-			if(times == 65535)
-				times = 0;
-			HAL_Delay(10);   
-		}
+//			HAL_UART_Transmit(&huart1,(uint8_t*)USART1_RX_BUF,len,1000);
+//			while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		HAL_Delay(5);//等待发送结束			
+//			USART1_RX_STA=0;
+//		}else
+//		{
+//			times++;
+//			if(times == 65535)
+//				times = 0;
+//			HAL_Delay(10);   
+//		}
 
+		/*nb 模块连接测试,每隔10s发一条信息*/
+		if(times % 100 == 0)
+		{
+//			send_msg_tcp_server("12345678");
+			print_u1("runing...\r\n");
+		}
+		times++;
+		if(times == 65535)
+			times = 0;
+		HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

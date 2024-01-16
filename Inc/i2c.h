@@ -117,8 +117,8 @@ typedef struct{
 	uint8_t *buf;
 } lis3dh_t;
 
-extern lis3dh_t g_lis3dh;								//姿态传感器信息
-extern uint8_t lis3dh_buffer[6];	//姿态传感器信息所需buffer
+extern lis3dh_t g_lis3dh;
+extern uint8_t lis3dh_buffer[6];
 
 HAL_StatusTypeDef lis3dh_init(lis3dh_t *lis3dh, I2C_HandleTypeDef *i2c, uint8_t *buf, uint16_t bufsize);
 bool lis3dh_xyz_available(lis3dh_t *lis3dh);

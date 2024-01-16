@@ -63,11 +63,14 @@
 /* External variables --------------------------------------------------------*/
 extern UART_HandleTypeDef hlpuart1;
 extern UART_HandleTypeDef huart1;
-extern UART_HandleTypeDef huart2;
 /* USER CODE BEGIN EV */
 
 extern GNRMC GPS;
-extern lis3dh_t g_lis3dh;	
+extern lis3dh_t g_lis3dh;
+
+extern uint8_t NB_4G_State;
+extern uint8_t Water_State;
+extern float Voleage;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -165,6 +168,20 @@ void EXTI0_1_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles EXTI line 4 to 15 interrupts.
+  */
+void EXTI4_15_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI4_15_IRQn 0 */
+
+  /* USER CODE END EXTI4_15_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_5);
+  /* USER CODE BEGIN EXTI4_15_IRQn 1 */
+
+  /* USER CODE END EXTI4_15_IRQn 1 */
+}
+
+/**
   * @brief This function handles USART1 global interrupt / USART1 wake-up interrupt through EXTI line 25.
   */
 void USART1_IRQHandler(void)
@@ -189,31 +206,6 @@ void USART1_IRQHandler(void)
 	}
 	
   /* USER CODE END USART1_IRQn 1 */
-}
-
-/**
-  * @brief This function handles USART2 global interrupt / USART2 wake-up interrupt through EXTI line 26.
-  */
-void USART2_IRQHandler(void)
-{
-  /* USER CODE BEGIN USART2_IRQn 0 */
-	uint32_t timeout=0;
-  /* USER CODE END USART2_IRQn 0 */
-  HAL_UART_IRQHandler(&huart2);
-  /* USER CODE BEGIN USART2_IRQn 1 */
-	timeout=0;
-  while (HAL_UART_GetState(&huart2) != HAL_UART_STATE_READY)//等待就绪
-	{
-		timeout++;////超时处理
-    if(timeout>HAL_MAX_DELAY) break;		
-	}
-	timeout=0;
-	while(HAL_UART_Receive_IT(&huart2, (uint8_t *)u2_aRxBuffer, RXBUFFERSIZE) != HAL_OK)//一次处理完成之后，重新开启中断并设置RxXferCount为1
-	{
-	 timeout++; //超时处理
-	 if(timeout>HAL_MAX_DELAY) break;	
-	}
-  /* USER CODE END USART2_IRQn 1 */
 }
 
 /**
@@ -245,56 +237,37 @@ void LPUART1_IRQHandler(void)
 /* USER CODE BEGIN 1 */
 
 
-
-
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
+	//霍尔开关被触发
 	if(GPIO_Pin == GPIO_PIN_0)
 	{
-		
 		HAL_Delay(100);	//消抖
 		//蜂鸣器
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
-		HAL_Delay(1000);
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
+		BEEP_On(1000);
 		
 		//获取模式选择状态
-		uint8_t mode = Get_Mode_State();
-		if(mode == 1){
-			sprintf((char *)USART1_TX_BUF, "switch 4G mode  ok\r\n");
-			HAL_UART_Transmit(&huart1,(uint8_t *)USART1_TX_BUF,USART_REC_LEN,999);
-			while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		//等待发送结束
-		}
-		else{
-			sprintf((char *)USART1_TX_BUF, "switch NB mode0 ok\r\n");
-			HAL_UART_Transmit(&huart1,(uint8_t *)USART1_TX_BUF,USART_REC_LEN,999);
-			while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		//等待发送结束
-		}
+		NB_4G_State = Get_Mode_State();
 		
-		//发送位置信息，时间(Todo：还需主动激活L76K获取位置信息操作)
-
-		//发送姿态信息
-		if(lis3dh_xyz_available(&g_lis3dh)) {
-			if(lis3dh_get_xyz(&g_lis3dh) == HAL_OK){
-				sprintf((char *)USART1_TX_BUF, "x=%d y=%d z=%d\r\n", g_lis3dh.x, g_lis3dh.y, g_lis3dh.z);
-				HAL_UART_Transmit(&huart1,(uint8_t *)USART1_TX_BUF,USART_REC_LEN,999);
-				while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		//等待发送结束
-			}
-		}
-		else{
-				sprintf((char *)USART1_TX_BUF, "get pos info fail\r\n");
-				HAL_UART_Transmit(&huart1,(uint8_t *)USART1_TX_BUF,USART_REC_LEN,999);
-				while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		//等待发送结束
-			}
-		//发送电池电量信息
-		float voleage = get_voleage();
-		sprintf((char *)USART1_TX_BUF, "voleage ==  %f\r\n", voleage);
-		HAL_UART_Transmit(&huart1,(uint8_t *)USART1_TX_BUF,USART_REC_LEN,999);
-		while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		//等待发送结束
+		//获取当前位置信息，时间
+//		GNSS_data_parse(uint8_t * buff_t)
 		
-		//发送水浸状态
-		uint8_t water_state = Get_Water_State();
+		//获取姿态信息
+		lis3dh_get_xyz(&g_lis3dh);
 		
+		//获取电池电量信息
+		Voleage = get_voleage();
+		
+		//获取水浸状态
+		Water_State = Get_Water_State();
+		
+		//向服TCP服务器发送信息
+		uint8_t msg[256];
+		sprintf(msg, "NB_4G:%d,Water:%d,Vol:%f,X:%d,Y:%d,Z:%d,Lon:,Lat:,Water_P:",NB_4G_State,Water_State,Voleage, g_lis3dh.x,g_lis3dh.y,g_lis3dh.z);
+		send_msg_tcp_server(msg);
+	}
+	else if(GPIO_Pin == GPIO_PIN_5)		//蓝牙模块有数据需要传输
+	{
 		
 	}
 }
@@ -361,33 +334,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				}		 
 			}
 		}
-	}else if(huart->Instance == USART2) {
-		if((USART2_RX_STA&0x8000)==0)//接收未完成
-		{
-			if(USART2_RX_STA&0x4000)//接收到了0x0d
-			{
-				if(u2_aRxBuffer[0]!=0x0a)
-					USART2_RX_STA=0;//接收错误,重新开始
-				else 
-					USART2_RX_STA|=0x8000;	//接收完成了 
-			}
-			else //还没收到0X0D,则将HAL接收函数的单字节缓冲内容搬到完整数据缓冲
-			{	
-				if(u2_aRxBuffer[0]==0x0d)
-				{
-					USART2_RX_STA|=0x4000;
-				}
-				else
-				{
-					USART2_RX_BUF[USART2_RX_STA&0X3FFF]=u2_aRxBuffer[0] ;
-					USART2_RX_STA++;
-					if(USART2_RX_STA>(USART_REC_LEN-1))
-							USART2_RX_STA=0;//接收数据错误,重新开始接收	  
-				}		 
-			}
-		}
 	}
-
 }
 
 /* USER CODE END 1 */

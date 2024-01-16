@@ -34,3 +34,6 @@ xiaofangshuan_test\usart.o: ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_pw
 xiaofangshuan_test\usart.o: ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_pwr_ex.h
 xiaofangshuan_test\usart.o: ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h
 xiaofangshuan_test\usart.o: ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h
+xiaofangshuan_test\usart.o: ../Inc/gpio.h
+xiaofangshuan_test\usart.o: D:\Software\MDK\ARM\ARMCC\Bin\..\include\string.h
+xiaofangshuan_test\usart.o: D:\Software\MDK\ARM\ARMCC\Bin\..\include\stdio.h

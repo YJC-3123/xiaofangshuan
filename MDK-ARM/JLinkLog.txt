@@ -1,0 +1,24 @@
+T3F44 004:999.694   SEGGER J-Link V7.94d Log File
+T3F44 005:003.144   DLL Compiled: Jan 11 2024 10:48:18
+T3F44 005:003.165   Logging started @ 2024-01-15 13:52
+T3F44 005:003.181   Process: D:\Software\MDK\UV4\UV4.exe
+T3F44 005:004.856 - 5003.198ms
+T3F44 005:004.923 JLINK_SetWarnOutHandler(...)
+T3F44 005:004.941 - 0.021ms
+T3F44 005:004.959 JLINK_OpenEx(...)
+T3F44 005:007.226   
+  ***** Error: 
+T3F44 005:007.280   Cannot connect to J-Link.
+T3F44 005:007.534 - 2.568ms returns "Cannot connect to J-Link."
+T3F44 005:007.900 
+  ***** Warning: 
+T3F44 005:007.936 API Error: API JLINK_GetHardwareVersion function called before JLINKARM_Open()
+T3F44 005:007.964 JLINK_GetHardwareVersion()
+T3F44 005:009.636   
+  ***** Error: 
+T3F44 005:023.441   Cannot connect to J-Link.
+T3F44 005:023.715 - 15.749ms
+T3F44 007:243.341 JLINK_Close()
+T3F44 007:243.435 - 0.094ms
+T3F44 007:243.441   
+T3F44 007:243.444   Closed

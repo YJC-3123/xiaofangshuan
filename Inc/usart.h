@@ -29,7 +29,9 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "gpio.h"
+#include "string.h"
+#include "stdio.h"
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef hlpuart1;
@@ -60,6 +62,13 @@ void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN Prototypes */
 void USART_IT_Start(void);
 void GNSS_data_parse(uint8_t * buff_t);
+
+HAL_StatusTypeDef connect_ble(void);
+void send_msg_ble(uint8_t* msg);
+void print_u1(uint8_t *msg);
+void nb_module_init(void);
+void send_msg_tcp_server(uint8_t* msg);
+HAL_StatusTypeDef connect_tcp_server(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

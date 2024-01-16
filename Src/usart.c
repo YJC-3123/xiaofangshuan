@@ -21,10 +21,14 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+#define DELAY_TIME 5000
 GNRMC GPS;
+//TCP目标服务器的IP需要为公网IP，测试使用http://tt.ai-thinker.com:8000/ttcloud 给出的IP
+uint8_t tcp_server_ip[20] = "12.tcp.cpolar.top";
+uint16_t tcp_server_port = 11843;
+uint8_t tcp_client_socket = 0;
 
 /* USER CODE END 0 */
-
 UART_HandleTypeDef hlpuart1;
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
@@ -72,7 +76,7 @@ void MX_USART1_UART_Init(void)
 
   /* USER CODE END USART1_Init 1 */
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
+  huart1.Init.BaudRate = 9600;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
@@ -117,7 +121,7 @@ void MX_USART2_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART2_Init 2 */
-	HAL_UART_Receive_IT(&huart2, (uint8_t *)u2_aRxBuffer, RXBUFFERSIZE);//开启接收中断：标志位UART_IT_RXNE，并且设置接收缓冲以及接收缓冲接收最大数据量
+	
   /* USER CODE END USART2_Init 2 */
 
 }
@@ -168,7 +172,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     */
     GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF0_USART1;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -200,9 +204,6 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF4_USART2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /* USART2 interrupt Init */
-    HAL_NVIC_SetPriority(USART2_IRQn, 3, 0);
-    HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE BEGIN USART2_MspInit 1 */
 
   /* USER CODE END USART2_MspInit 1 */
@@ -266,8 +267,6 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2|GPIO_PIN_3);
 
-    /* USART2 interrupt Deinit */
-    HAL_NVIC_DisableIRQ(USART2_IRQn);
   /* USER CODE BEGIN USART2_MspDeInit 1 */
 
   /* USER CODE END USART2_MspDeInit 1 */
@@ -275,21 +274,22 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
-void gnss_ini()
-{
-	
+
+void print_u1(uint8_t *msg){
+	if(msg != NULL){
+		HAL_UART_Transmit(&huart1,(uint8_t*)msg,strlen((char*)msg),1000);	//发送接收到的数据
+		while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		HAL_Delay(5);//等待发送结束
+	}
 }
 
-
-
+//打开各串口中断
 void USART_IT_Start(void)
 {
 	HAL_UART_Receive_IT(&hlpuart1, (uint8_t *)lp1_aRxBuffer, RXBUFFERSIZE);//开启接收中断：标志位UART_IT_RXNE，并且设置接收缓冲以及接收缓冲接收最大数据量
 	HAL_UART_Receive_IT(&huart1, (uint8_t *)u1_aRxBuffer, RXBUFFERSIZE);
-	HAL_UART_Receive_IT(&huart2, (uint8_t *)u2_aRxBuffer, RXBUFFERSIZE);
 }
 
-
+//解析GNSS数据
 void GNSS_data_parse(uint8_t * buff_t) {
 	uint16_t add = 0, x = 0, y = 0, z = 0, i = 0;
 	uint32_t Time = 0, times = 1.0;
@@ -422,4 +422,89 @@ void GNSS_data_parse(uint8_t * buff_t) {
 		}
 	}
 }
+
+//通过MAC地址连接到水压小板蓝牙模块
+HAL_StatusTypeDef connect_ble(void){
+		
+	return HAL_OK;
+}
+
+
+//向蓝牙模块发送信息，通过透传发送给水压小板从机(msg需要自己设定好发送内容)
+void send_msg_ble(uint8_t* msg){
+	set_reset_ble_brts(0);
+	HAL_Delay(50);
+	
+	for(uint8_t masterid=0;masterid<5;masterid++)	//为方便直接向连接的所有主机发送消息
+	{
+		
+	}
+	
+	HAL_UART_Transmit(&huart2,(uint8_t*)msg,strlen((const char*)msg),1000);	//发送接收到的数据
+	while(__HAL_UART_GET_FLAG(&huart2,UART_FLAG_TC)!=SET);		HAL_Delay(5);//等待发送结束
+	
+	HAL_Delay(50);
+	set_reset_ble_brts(1);
+}
+
+void nb_module_init(){
+	//重置模块
+	set_reset_net_module(0);
+	HAL_Delay(500);
+	set_reset_net_module(1);
+	HAL_Delay(5000);
+	//模块退出睡眠模式
+	set_reset_net_psm(0);
+	HAL_Delay(1000);
+
+	//关闭回显
+//	print_u1("ATE0\r\n");
+//	HAL_Delay(DELAY_TIME);
+	//禁止休眠(此处可能之前已经进入睡眠，故发两次，需优化)
+	print_u1("AT+QSCLK=0\r\n");
+	HAL_Delay(DELAY_TIME);
+	print_u1("AT+QSCLK=0\r\n");
+	HAL_Delay(DELAY_TIME);
+	//配置数据格式为文本
+	print_u1("AT+QICFG=\"dataformat\",0,0\r\n");
+	HAL_Delay(DELAY_TIME);
+}
+
+HAL_StatusTypeDef connect_tcp_server(void){
+	//将所有可能存在的连接关闭
+	uint8_t msg[128];
+	for(uint8_t socket=0;socket<5;++socket){
+		sprintf((char *)msg,"AT+QICLOSE=%d\r\n",socket);
+		print_u1(msg);
+		HAL_Delay(DELAY_TIME);
+	}
+	//连接TCP服务器，使用socket=0
+	sprintf((char *)msg, "AT+QIOPEN=0,%d,\"TCP\",\"%s\",%d\r\n",tcp_client_socket,(char*)tcp_server_ip, tcp_server_port);
+	print_u1(msg);
+	HAL_Delay(DELAY_TIME);
+	//Todo：此处可通过发送AT+QISTATE=1,0并检查返回内容判断连接是否成功建立
+	return HAL_OK;
+}
+
+
+//以文本形式向TCP服务器发送信息(msg信息中不需要带\r\n)
+void send_msg_tcp_server(uint8_t* msg){
+	//先建立TCP连接
+	connect_tcp_server();
+	HAL_Delay(5000);
+	//发送数据
+	uint16_t len = strlen((char*)msg);
+	uint8_t send_msg[256];
+	sprintf((char*)send_msg, "AT+QISEND=0,%d,\"%s\"\r\n", len, msg);
+	print_u1(send_msg);
+	HAL_Delay(DELAY_TIME);
+	HAL_Delay(5000);
+	//Todo：此处需要完善判断数据是否发送成功
+	//断开连接
+	sprintf((char *)send_msg, "AT+=QICLOSE=%d\r\n",tcp_client_socket);
+	print_u1(send_msg);
+	HAL_Delay(DELAY_TIME);
+}
+
+
 /* USER CODE END 1 */
