@@ -68,7 +68,8 @@ uint8_t REC_FLAG = 0;		//霍尔开关是否被按下标志
 uint8_t NB_4G_State;		//通讯模式状态记录:1为4G，0为NB
 uint8_t Water_State;		//水浸状态记录：1为水浸，0为未水浸
 float Voleage;	//电池电量
-uint16_t Water_Pre;		//水压
+uint8_t Water_Pre[10];		//水压
+bool isGetWP;
 
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart1;
@@ -119,8 +120,6 @@ int main(void)
   MX_ADC_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-	uint16_t times=0;
-		
 	HAL_StatusTypeDef status;
 	status = lis3dh_init(&g_lis3dh, &hi2c1, lis3dh_buffer, 6);
 	if(status != HAL_OK)
@@ -128,10 +127,8 @@ int main(void)
 	else
 		print_u1("lis3dh_init ok\r\n");
 	
-//	nb_module_init();		//网络通信模块初始化
+	nb_module_init();		//网络通信模块初始化
 		
-	send_msg_ble("TTM:BPS-?");
-	HAL_Delay(1000);
 	ble_mode_init(3);	//设置本机蓝牙为从机	
 	
 //	BEEP_On(1000);
@@ -178,31 +175,6 @@ int main(void)
 //			HAL_Delay(10);   
 //		}
 
-		if(USART2_RX_STA & 0x8000){
-			USART2_RX_STA = 0;
-			uint8_t send_msg[128];
-			sprintf((char*)send_msg,"\r\nu2 rev:\r\n%s",USART2_RX_BUF);
-			print_u1(send_msg);
-		}
-		if(REC_FLAG == 1)
-		{
-			uint8_t temp_buffer[64];
-			HAL_StatusTypeDef status = HAL_UART_Receive(&huart2, temp_buffer, 64, 1000);
-			REC_FLAG = 0;
-			//清空串口2的接收寄存器
-			memcpy(USART2_RX_BUF,temp_buffer,128);
-			uint8_t send_msg[128];
-			sprintf((char*)send_msg,"\r\nsta=%d\r\nrev:\r\n%s",status,USART2_RX_BUF);
-			print_u1(send_msg);
-		}
-		
-		else
-		{
-			if(times == 65535)
-				times = 0;
-		}
-
-		times++;
 		HAL_Delay(10);
     /* USER CODE END WHILE */
 
@@ -274,6 +246,22 @@ void HAL_IncTick(void)
   uwTick += uwTickFreq;
 }
 
+
+//从蓝牙模块收到的信息中解析水压数据，设定远端主机发送水压数据为#xxx#
+void process_remote_ble_recv(uint8_t *buffer)
+{
+		char* pidx0, *pidx1;
+		pidx0 = strchr((char *)buffer, '#');
+		if(pidx0 == NULL)
+			return;
+		pidx1 = strrchr((char*)buffer,'#');
+		if(pidx1 == NULL)
+			return;
+		//获取最新的水压数据，同时更新标志
+		isGetWP = true;
+		uint8_t len = pidx1 - pidx0 -1;
+		strncpy((char*)Water_Pre, pidx0+1, len);
+}
 /* USER CODE END 4 */
 
 /**

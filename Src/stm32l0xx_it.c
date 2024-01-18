@@ -71,6 +71,9 @@ extern lis3dh_t g_lis3dh;
 extern uint8_t NB_4G_State;
 extern uint8_t Water_State;
 extern float Voleage;
+extern bool isGetWP;
+extern uint8_t Water_Pre[10];
+
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -249,7 +252,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		NB_4G_State = Get_Mode_State();
 		
 		//获取当前位置信息，时间
-	//	GNSS_data_parse(uint8_t * buff_t)
+	//	GNSS_data_parse(uint8_t * buff_t);
 		
 		//获取姿态信息
 		lis3dh_get_xyz(&g_lis3dh);
@@ -260,25 +263,36 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		//获取水浸状态
 		Water_State = Get_Water_State();
 		
-		//蓝牙请求获取水压
-		print_u1("IT REQUEST\r\n");
+		//连接远端蓝牙请求获取水压
+		isGetWP = false;
 		connet_remote_ble();
-		HAL_Delay(1000);
+		HAL_Delay(1000);		//Todo：此处通过延迟保证连接成功，应优化为检查连接状态
 		send_remote_ble("GET_REQ\r\n");
 		
-		//向服TCP服务器发送信息
-//		uint8_t msg[256];
-//		sprintf((char*)msg, "NB_4G:%d,Water:%d,Vol:%f,X:%d,Y:%d,Z:%d,Lon:,Lat:,Water_P:",NB_4G_State,Water_State,Voleage, g_lis3dh.x,g_lis3dh.y,g_lis3dh.z);
-//		send_msg_tcp_server(msg);
+		//等待收到水压消息，蓝牙数据接收中断优先级需高于本中断优先级
+		for(uint8_t i=0;i<30;i++)
+		{
+			HAL_Delay(100);
+			if(isGetWP == true)
+				break;
+		}
+		uint8_t msg[256];
+		sprintf((char*)msg, "NB_4G:%d,Water:%d,Vol:%f,X:%d,Y:%d,Z:%d,Lon:,Lat:,Water_P:%s",NB_4G_State,Water_State,Voleage, g_lis3dh.x,g_lis3dh.y,g_lis3dh.z,Water_Pre);
+		send_msg_tcp_server(msg);
+
+
+
 	}
-	else if(GPIO_Pin == GPIO_PIN_5)		//蓝牙模块有数据需要传输
+	else if(GPIO_Pin == GPIO_PIN_5)		//蓝牙模块需要传输数据
 	{
-//		REC_FLAG = 1;
+//		HAL_Delay(50);	//加入延迟反而无法读取出内容
 		uint8_t temp_buffer[100];
 		//清空串口2的接收寄存器
 		HAL_StatusTypeDef status = HAL_UART_Receive(&huart2, temp_buffer, 100, 1000);
-		uint8_t send_msg[128];
-		sprintf((char*)send_msg,"\r\nsta=%d\r\nrev:\r\n%s",status,temp_buffer);
+		process_remote_ble_recv(temp_buffer);
+		
+		uint8_t send_msg[30];
+		sprintf((char*)send_msg,"\r\nget data == %s\r\n",Water_Pre);
 		print_u1(send_msg);
 	}
 }
@@ -345,9 +359,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			}
 		}
 	} 
-	else if(huart->Instance == USART2){
-		
-	}
 }
 
 /* USER CODE END 1 */

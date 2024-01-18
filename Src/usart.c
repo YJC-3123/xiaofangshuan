@@ -491,7 +491,7 @@ void send_msg_ble(uint8_t *msg){
 /*设置当前蓝牙模块工作模式：有效值0~5，默认为2（从机模式）*/
 void ble_mode_init(uint8_t val){
 	//关闭回显
-	send_msg_ble("TTM:ECHO-1");
+	send_msg_ble("TTM:ECHO-0");
 	//设置工作模式
 	uint8_t msg[128];
 	sprintf((char*)msg,"TTM:MODE-%d",val);

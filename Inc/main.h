@@ -81,7 +81,8 @@ extern uint8_t lp1_aRxBuffer[RXBUFFERSIZE];
 extern uint8_t NB_4G_State;
 extern uint8_t Water_State;
 extern float Voleage;
-extern uint16_t Water_Pre;
+extern uint8_t Water_Pre[10];
+void process_remote_ble_recv(uint8_t *buffer);
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

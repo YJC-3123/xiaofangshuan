@@ -1,7 +1,7 @@
 Dependencies for Project 'xiaofangshuan_test', Target 'xiaofangshuan_test': (DO NOT MODIFY !)
 F (startup_stm32l051xx.s)(0x65A8E1E5)(--cpu Cortex-M0+ -g --apcs=interwork -IE:\xiaofangshaun\xiaofangshuan_test\MDK-ARM\RTE-ID:\Software\MDK\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-ID:\Software\MDK\ARM\PACK\Keil\STM32L0xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L0xx\Include--pd "__UVISION_VERSION SETA 521" --pd "_RTE_ SETA 1" --pd "STM32L051xx SETA 1"--list startup_stm32l051xx.lst --xref -o xiaofangshuan_test\startup_stm32l051xx.o --depend xiaofangshuan_test\startup_stm32l051xx.d)
-F (../Src/main.c)(0x65A91246)(--c99 -c --cpu Cortex-M0+ -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I ../Drivers/CMSIS/Include-IE:\xiaofangshaun\xiaofangshuan_test\MDK-ARM\RTE-ID:\Software\MDK\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-ID:\Software\MDK\ARM\PACK\Keil\STM32L0xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L0xx\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32L051xx -DUSE_HAL_DRIVER -DSTM32L051xx-o xiaofangshuan_test\main.o --omf_browse xiaofangshuan_test\main.crf --depend xiaofangshuan_test\main.d)
-I (../Inc/main.h)(0x65A8DC75)
+F (../Src/main.c)(0x65A928C1)(--c99 -c --cpu Cortex-M0+ -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I ../Drivers/CMSIS/Include-IE:\xiaofangshaun\xiaofangshuan_test\MDK-ARM\RTE-ID:\Software\MDK\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-ID:\Software\MDK\ARM\PACK\Keil\STM32L0xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L0xx\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32L051xx -DUSE_HAL_DRIVER -DSTM32L051xx-o xiaofangshuan_test\main.o --omf_browse xiaofangshuan_test\main.crf --depend xiaofangshuan_test\main.d)
+I (../Inc/main.h)(0x65A928D4)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h)(0x5FA16DE1)
 I (../Inc/stm32l0xx_hal_conf.h)(0x65A8F02F)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_rcc.h)(0x5FA16DFF)
@@ -41,9 +41,9 @@ I (../Inc/usart.h)(0x65A8D737)
 I (../Inc/gpio.h)(0x65A7C1A1)
 I (D:\Software\MDK\ARM\ARMCC\include\string.h)(0x574E3E26)
 I (D:\Software\MDK\ARM\ARMCC\include\stdio.h)(0x574E3E26)
-F (../Src/gpio.c)(0x65A8F303)(--c99 -c --cpu Cortex-M0+ -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I ../Drivers/CMSIS/Include-IE:\xiaofangshaun\xiaofangshuan_test\MDK-ARM\RTE-ID:\Software\MDK\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-ID:\Software\MDK\ARM\PACK\Keil\STM32L0xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L0xx\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32L051xx -DUSE_HAL_DRIVER -DSTM32L051xx-o xiaofangshuan_test\gpio.o --omf_browse xiaofangshuan_test\gpio.crf --depend xiaofangshuan_test\gpio.d)
+F (../Src/gpio.c)(0x65A91D8D)(--c99 -c --cpu Cortex-M0+ -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I ../Drivers/CMSIS/Include-IE:\xiaofangshaun\xiaofangshuan_test\MDK-ARM\RTE-ID:\Software\MDK\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-ID:\Software\MDK\ARM\PACK\Keil\STM32L0xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L0xx\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32L051xx -DUSE_HAL_DRIVER -DSTM32L051xx-o xiaofangshuan_test\gpio.o --omf_browse xiaofangshuan_test\gpio.crf --depend xiaofangshuan_test\gpio.d)
 I (../Inc/gpio.h)(0x65A7C1A1)
-I (../Inc/main.h)(0x65A8DC75)
+I (../Inc/main.h)(0x65A928D4)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h)(0x5FA16DE1)
 I (../Inc/stm32l0xx_hal_conf.h)(0x65A8F02F)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_rcc.h)(0x5FA16DFF)
@@ -78,7 +78,7 @@ I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h)(0x5FA16E26)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h)(0x5FA16E26)
 F (../Src/adc.c)(0x65A0FE1A)(--c99 -c --cpu Cortex-M0+ -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I ../Drivers/CMSIS/Include-IE:\xiaofangshaun\xiaofangshuan_test\MDK-ARM\RTE-ID:\Software\MDK\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-ID:\Software\MDK\ARM\PACK\Keil\STM32L0xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L0xx\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32L051xx -DUSE_HAL_DRIVER -DSTM32L051xx-o xiaofangshuan_test\adc.o --omf_browse xiaofangshuan_test\adc.crf --depend xiaofangshuan_test\adc.d)
 I (../Inc/adc.h)(0x65A629BE)
-I (../Inc/main.h)(0x65A8DC75)
+I (../Inc/main.h)(0x65A928D4)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h)(0x5FA16DE1)
 I (../Inc/stm32l0xx_hal_conf.h)(0x65A8F02F)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_rcc.h)(0x5FA16DFF)
@@ -114,7 +114,7 @@ I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h)(0x5FA16E26)
 I (../Inc/gpio.h)(0x65A7C1A1)
 F (../Src/i2c.c)(0x65A222DB)(--c99 -c --cpu Cortex-M0+ -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I ../Drivers/CMSIS/Include-IE:\xiaofangshaun\xiaofangshuan_test\MDK-ARM\RTE-ID:\Software\MDK\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-ID:\Software\MDK\ARM\PACK\Keil\STM32L0xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L0xx\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32L051xx -DUSE_HAL_DRIVER -DSTM32L051xx-o xiaofangshuan_test\i2c.o --omf_browse xiaofangshuan_test\i2c.crf --depend xiaofangshuan_test\i2c.d)
 I (../Inc/i2c.h)(0x65A222D3)
-I (../Inc/main.h)(0x65A8DC75)
+I (../Inc/main.h)(0x65A928D4)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h)(0x5FA16DE1)
 I (../Inc/stm32l0xx_hal_conf.h)(0x65A8F02F)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_rcc.h)(0x5FA16DFF)
@@ -150,9 +150,9 @@ I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h)(0x5FA16E26)
 I (D:\Software\MDK\ARM\ARMCC\include\stdbool.h)(0x574E3E26)
 I (D:\Software\MDK\ARM\ARMCC\include\string.h)(0x574E3E26)
 I (D:\Software\MDK\ARM\ARMCC\include\stdio.h)(0x574E3E26)
-F (../Src/usart.c)(0x65A9111D)(--c99 -c --cpu Cortex-M0+ -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I ../Drivers/CMSIS/Include-IE:\xiaofangshaun\xiaofangshuan_test\MDK-ARM\RTE-ID:\Software\MDK\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-ID:\Software\MDK\ARM\PACK\Keil\STM32L0xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L0xx\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32L051xx -DUSE_HAL_DRIVER -DSTM32L051xx-o xiaofangshuan_test\usart.o --omf_browse xiaofangshuan_test\usart.crf --depend xiaofangshuan_test\usart.d)
+F (../Src/usart.c)(0x65A91E98)(--c99 -c --cpu Cortex-M0+ -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I ../Drivers/CMSIS/Include-IE:\xiaofangshaun\xiaofangshuan_test\MDK-ARM\RTE-ID:\Software\MDK\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-ID:\Software\MDK\ARM\PACK\Keil\STM32L0xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L0xx\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32L051xx -DUSE_HAL_DRIVER -DSTM32L051xx-o xiaofangshuan_test\usart.o --omf_browse xiaofangshuan_test\usart.crf --depend xiaofangshuan_test\usart.d)
 I (../Inc/usart.h)(0x65A8D737)
-I (../Inc/main.h)(0x65A8DC75)
+I (../Inc/main.h)(0x65A928D4)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h)(0x5FA16DE1)
 I (../Inc/stm32l0xx_hal_conf.h)(0x65A8F02F)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_rcc.h)(0x5FA16DFF)
@@ -188,8 +188,8 @@ I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h)(0x5FA16E26)
 I (../Inc/gpio.h)(0x65A7C1A1)
 I (D:\Software\MDK\ARM\ARMCC\include\string.h)(0x574E3E26)
 I (D:\Software\MDK\ARM\ARMCC\include\stdio.h)(0x574E3E26)
-F (../Src/stm32l0xx_it.c)(0x65A90D7D)(--c99 -c --cpu Cortex-M0+ -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I ../Drivers/CMSIS/Include-IE:\xiaofangshaun\xiaofangshuan_test\MDK-ARM\RTE-ID:\Software\MDK\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-ID:\Software\MDK\ARM\PACK\Keil\STM32L0xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L0xx\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32L051xx -DUSE_HAL_DRIVER -DSTM32L051xx-o xiaofangshuan_test\stm32l0xx_it.o --omf_browse xiaofangshuan_test\stm32l0xx_it.crf --depend xiaofangshuan_test\stm32l0xx_it.d)
-I (../Inc/main.h)(0x65A8DC75)
+F (../Src/stm32l0xx_it.c)(0x65A92CC8)(--c99 -c --cpu Cortex-M0+ -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I ../Drivers/CMSIS/Include-IE:\xiaofangshaun\xiaofangshuan_test\MDK-ARM\RTE-ID:\Software\MDK\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-ID:\Software\MDK\ARM\PACK\Keil\STM32L0xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L0xx\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32L051xx -DUSE_HAL_DRIVER -DSTM32L051xx-o xiaofangshuan_test\stm32l0xx_it.o --omf_browse xiaofangshuan_test\stm32l0xx_it.crf --depend xiaofangshuan_test\stm32l0xx_it.d)
+I (../Inc/main.h)(0x65A928D4)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h)(0x5FA16DE1)
 I (../Inc/stm32l0xx_hal_conf.h)(0x65A8F02F)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_rcc.h)(0x5FA16DFF)
@@ -222,7 +222,7 @@ I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_pwr.h)(0x5FA16DFD)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_pwr_ex.h)(0x5FA16DFD)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h)(0x5FA16E26)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h)(0x5FA16E26)
-I (../Inc/stm32l0xx_it.h)(0x65A8F303)
+I (../Inc/stm32l0xx_it.h)(0x65A91D31)
 I (D:\Software\MDK\ARM\ARMCC\include\string.h)(0x574E3E26)
 I (D:\Software\MDK\ARM\ARMCC\include\stdio.h)(0x574E3E26)
 I (../Inc/usart.h)(0x65A8D737)
@@ -230,8 +230,8 @@ I (../Inc/gpio.h)(0x65A7C1A1)
 I (../Inc/adc.h)(0x65A629BE)
 I (../Inc/i2c.h)(0x65A222D3)
 I (D:\Software\MDK\ARM\ARMCC\include\stdbool.h)(0x574E3E26)
-F (../Src/stm32l0xx_hal_msp.c)(0x659CC098)(--c99 -c --cpu Cortex-M0+ -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I ../Drivers/CMSIS/Include-IE:\xiaofangshaun\xiaofangshuan_test\MDK-ARM\RTE-ID:\Software\MDK\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-ID:\Software\MDK\ARM\PACK\Keil\STM32L0xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L0xx\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32L051xx -DUSE_HAL_DRIVER -DSTM32L051xx-o xiaofangshuan_test\stm32l0xx_hal_msp.o --omf_browse xiaofangshuan_test\stm32l0xx_hal_msp.crf --depend xiaofangshuan_test\stm32l0xx_hal_msp.d)
-I (../Inc/main.h)(0x65A8DC75)
+F (../Src/stm32l0xx_hal_msp.c)(0x65A91D31)(--c99 -c --cpu Cortex-M0+ -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc -I ../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I ../Drivers/CMSIS/Include-IE:\xiaofangshaun\xiaofangshuan_test\MDK-ARM\RTE-ID:\Software\MDK\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-ID:\Software\MDK\ARM\PACK\Keil\STM32L0xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L0xx\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32L051xx -DUSE_HAL_DRIVER -DSTM32L051xx-o xiaofangshuan_test\stm32l0xx_hal_msp.o --omf_browse xiaofangshuan_test\stm32l0xx_hal_msp.crf --depend xiaofangshuan_test\stm32l0xx_hal_msp.d)
+I (../Inc/main.h)(0x65A928D4)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h)(0x5FA16DE1)
 I (../Inc/stm32l0xx_hal_conf.h)(0x65A8F02F)
 I (../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_rcc.h)(0x5FA16DFF)
