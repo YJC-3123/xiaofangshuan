@@ -64,7 +64,7 @@
 extern UART_HandleTypeDef hlpuart1;
 extern UART_HandleTypeDef huart1;
 /* USER CODE BEGIN EV */
-extern uint8_t KEY_FLAG;
+extern uint8_t REC_FLAG;
 extern GNRMC GPS;
 extern lis3dh_t g_lis3dh;
 
@@ -241,7 +241,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	//霍尔开关被触发
 	if(GPIO_Pin == GPIO_PIN_0)
 	{
-		HAL_Delay(100);	//消抖
+		HAL_Delay(10);	//消抖
 		//蜂鸣器
 //		BEEP_On(1000);
 		
@@ -273,15 +273,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	}
 	else if(GPIO_Pin == GPIO_PIN_5)		//蓝牙模块有数据需要传输
 	{
-		HAL_Delay(10);
-		uint8_t temp_buffer[128];
-		
+//		REC_FLAG = 1;
+		uint8_t temp_buffer[100];
 		//清空串口2的接收寄存器
-		HAL_StatusTypeDef status = HAL_UART_Receive(&huart2, temp_buffer, 128, 1000);
-//		__HAL_UART_FLUSH_DRREGISTER(&huart1);
-		memcpy(USART2_RX_BUF,temp_buffer,128);
+		HAL_StatusTypeDef status = HAL_UART_Receive(&huart2, temp_buffer, 100, 1000);
 		uint8_t send_msg[128];
-		sprintf((char*)send_msg,"\r\nsta=%d\r\nrev:\r\n%s",status,USART2_RX_BUF);
+		sprintf((char*)send_msg,"\r\nsta=%d\r\nrev:\r\n%s",status,temp_buffer);
 		print_u1(send_msg);
 	}
 }
@@ -349,7 +346,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		}
 	} 
 	else if(huart->Instance == USART2){
-
+		
 	}
 }
 

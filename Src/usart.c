@@ -108,7 +108,7 @@ void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
+  huart2.Init.BaudRate = 9600;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
@@ -122,7 +122,7 @@ void MX_USART2_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART2_Init 2 */
-	
+
   /* USER CODE END USART2_Init 2 */
 
 }
@@ -470,7 +470,6 @@ void send_msg_tcp_server(uint8_t* msg){
 	sprintf((char*)send_msg, "AT+QISEND=0,%d,\"%s\"\r\n", len, msg);
 	print_u1(send_msg);
 	HAL_Delay(DELAY_TIME);
-
 	//Todo：此处需要完善判断数据是否发送成功
 	//断开连接
 	sprintf((char *)send_msg, "AT+=QICLOSE=%d\r\n",tcp_client_socket);
@@ -482,11 +481,11 @@ void send_msg_tcp_server(uint8_t* msg){
 /*向蓝牙模块串口发送信息*/
 void send_msg_ble(uint8_t *msg){
 		set_reset_brts(0);
-		HAL_Delay(100);
+		HAL_Delay(200);
 		HAL_UART_Transmit(&huart2, (uint8_t *)msg, strlen((const char *)msg), 1000); // 发送数据
     while (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_TC) != SET) HAL_Delay(5); // 等待发送结束
-		HAL_Delay(200);
-		set_reset_brts(1);
+	//		HAL_Delay(200);		//Todo:此处暂不考虑低功耗将brts拉高
+//		set_reset_brts(1);
 }
 
 /*设置当前蓝牙模块工作模式：有效值0~5，默认为2（从机模式）*/
