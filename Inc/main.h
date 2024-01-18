@@ -77,9 +77,11 @@ extern uint8_t LPUSART1_RX_BUF[USART_REC_LEN];
 extern uint8_t LPUSART1_TX_BUF[USART_REC_LEN]; 
 extern uint8_t lp1_aRxBuffer[RXBUFFERSIZE];
 
+
 extern uint8_t NB_4G_State;
 extern uint8_t Water_State;
 extern float Voleage;
+extern uint16_t Water_Pre;
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

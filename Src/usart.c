@@ -21,7 +21,7 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-#define DELAY_TIME 5000
+#define DELAY_TIME 1000
 GNRMC GPS;
 //TCP目标服务器的IP需要为公网IP，测试使用http://tt.ai-thinker.com:8000/ttcloud 给出的IP
 uint8_t tcp_server_ip[20] = "12.tcp.cpolar.top";
@@ -29,6 +29,7 @@ uint16_t tcp_server_port = 11843;
 uint8_t tcp_client_socket = 0;
 
 /* USER CODE END 0 */
+
 UART_HandleTypeDef hlpuart1;
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
@@ -178,7 +179,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* USART1 interrupt Init */
-    HAL_NVIC_SetPriority(USART1_IRQn, 2, 0);
+    HAL_NVIC_SetPriority(USART1_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
   /* USER CODE BEGIN USART1_MspInit 1 */
 
@@ -280,13 +281,6 @@ void print_u1(uint8_t *msg){
 		HAL_UART_Transmit(&huart1,(uint8_t*)msg,strlen((char*)msg),1000);	//发送接收到的数据
 		while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		HAL_Delay(5);//等待发送结束
 	}
-}
-
-//打开各串口中断
-void USART_IT_Start(void)
-{
-	HAL_UART_Receive_IT(&hlpuart1, (uint8_t *)lp1_aRxBuffer, RXBUFFERSIZE);//开启接收中断：标志位UART_IT_RXNE，并且设置接收缓冲以及接收缓冲接收最大数据量
-	HAL_UART_Receive_IT(&huart1, (uint8_t *)u1_aRxBuffer, RXBUFFERSIZE);
 }
 
 //解析GNSS数据
@@ -423,39 +417,17 @@ void GNSS_data_parse(uint8_t * buff_t) {
 	}
 }
 
-//通过MAC地址连接到水压小板蓝牙模块
-HAL_StatusTypeDef connect_ble(void){
-		
-	return HAL_OK;
-}
 
-
-//向蓝牙模块发送信息，通过透传发送给水压小板从机(msg需要自己设定好发送内容)
-void send_msg_ble(uint8_t* msg){
-	set_reset_ble_brts(0);
-	HAL_Delay(50);
-	
-	for(uint8_t masterid=0;masterid<5;masterid++)	//为方便直接向连接的所有主机发送消息
-	{
-		
-	}
-	
-	HAL_UART_Transmit(&huart2,(uint8_t*)msg,strlen((const char*)msg),1000);	//发送接收到的数据
-	while(__HAL_UART_GET_FLAG(&huart2,UART_FLAG_TC)!=SET);		HAL_Delay(5);//等待发送结束
-	
-	HAL_Delay(50);
-	set_reset_ble_brts(1);
-}
 
 void nb_module_init(){
 	//重置模块
 	set_reset_net_module(0);
 	HAL_Delay(500);
 	set_reset_net_module(1);
-	HAL_Delay(5000);
+	HAL_Delay(500);
 	//模块退出睡眠模式
 	set_reset_net_psm(0);
-	HAL_Delay(1000);
+	HAL_Delay(500);
 
 	//关闭回显
 //	print_u1("ATE0\r\n");
@@ -491,14 +463,14 @@ HAL_StatusTypeDef connect_tcp_server(void){
 void send_msg_tcp_server(uint8_t* msg){
 	//先建立TCP连接
 	connect_tcp_server();
-	HAL_Delay(5000);
+	HAL_Delay(DELAY_TIME);
 	//发送数据
 	uint16_t len = strlen((char*)msg);
 	uint8_t send_msg[256];
 	sprintf((char*)send_msg, "AT+QISEND=0,%d,\"%s\"\r\n", len, msg);
 	print_u1(send_msg);
 	HAL_Delay(DELAY_TIME);
-	HAL_Delay(5000);
+
 	//Todo：此处需要完善判断数据是否发送成功
 	//断开连接
 	sprintf((char *)send_msg, "AT+=QICLOSE=%d\r\n",tcp_client_socket);
@@ -506,5 +478,53 @@ void send_msg_tcp_server(uint8_t* msg){
 	HAL_Delay(DELAY_TIME);
 }
 
+
+/*向蓝牙模块串口发送信息*/
+void send_msg_ble(uint8_t *msg){
+		set_reset_brts(0);
+		HAL_Delay(100);
+		HAL_UART_Transmit(&huart2, (uint8_t *)msg, strlen((const char *)msg), 1000); // 发送数据
+    while (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_TC) != SET) HAL_Delay(5); // 等待发送结束
+		HAL_Delay(200);
+		set_reset_brts(1);
+}
+
+/*设置当前蓝牙模块工作模式：有效值0~5，默认为2（从机模式）*/
+void ble_mode_init(uint8_t val){
+	//关闭回显
+	send_msg_ble("TTM:ECHO-1");
+	//设置工作模式
+	uint8_t msg[128];
+	sprintf((char*)msg,"TTM:MODE-%d",val);
+	send_msg_ble(msg);
+}
+
+uint8_t REMOTE_MAC[64] = "0xBA03415FB9C1";
+/*通过指定MAC地址连接远端蓝牙模块*/
+void connet_remote_ble(void)
+{
+	uint8_t msg[128];
+	sprintf((char*)msg,"TTM:CONN-%s",REMOTE_MAC);
+	send_msg_ble(msg);
+}
+
+void discon_remote_ble(void)
+{
+	//主机最多同时连接5个从机
+	for(uint8_t idx=0;idx<1;idx++){
+		uint8_t msg[64];
+		sprintf((char*)msg,"TTM:MASTER-DISCONN-#%d",idx);
+		send_msg_ble(msg);
+	}
+}
+
+void send_remote_ble(uint8_t* msg){
+	//测试期间直接向所有主机发送消息：Todo：可通过查询已连接用户表确定向哪个主机发送信息
+	for(uint8_t idx=0;idx<1;idx++){
+		uint8_t send_msg[128];
+		sprintf((char*)send_msg,"TTM:MASTER-SEND-#%d,%s",idx,msg);
+		send_msg_ble(send_msg);
+	}
+}
 
 /* USER CODE END 1 */

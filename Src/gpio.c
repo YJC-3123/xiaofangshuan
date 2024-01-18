@@ -97,7 +97,7 @@ void MX_GPIO_Init(void)
   HAL_NVIC_SetPriority(EXTI0_1_IRQn, 2, 0);
   HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI4_15_IRQn, 3, 0);
+  HAL_NVIC_SetPriority(EXTI4_15_IRQn, 2, 0);
   HAL_NVIC_EnableIRQ(EXTI4_15_IRQn);
 
 }
@@ -126,7 +126,7 @@ uint8_t Get_Mode_State(void){
 		return 0;
 }
 
-void set_reset_ble_brts(uint8_t val)
+void set_reset_brts(uint8_t val)
 {
 	if(val == 1){
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);

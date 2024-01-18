@@ -63,11 +63,12 @@ uint8_t LPUSART1_RX_BUF[USART_REC_LEN];     //串口LP1完整数据接收缓冲
 uint8_t LPUSART1_TX_BUF[USART_REC_LEN];     //串口LP1完整数据发送缓冲
 uint8_t lp1_aRxBuffer[RXBUFFERSIZE];		//HAL库使用的串口LP1单字节接收缓冲
 
+uint8_t KEY_FLAG = 0;		//霍尔开关是否被按下标志
+
 uint8_t NB_4G_State;		//通讯模式状态记录:1为4G，0为NB
 uint8_t Water_State;		//水浸状态记录：1为水浸，0为未水浸
 float Voleage;	//电池电量
-
-
+uint16_t Water_Pre;		//水压
 
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart1;
@@ -118,30 +119,21 @@ int main(void)
   MX_ADC_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-	uint8_t len;
 	uint16_t times=0;
 		
 	HAL_StatusTypeDef status;
 	status = lis3dh_init(&g_lis3dh, &hi2c1, lis3dh_buffer, 6);
 	if(status != HAL_OK)
-		print_u1("lis3dh_init ok\r\n");
-	else
 		print_u1("lis3dh_init fail\r\n");
-
-	BEEP_On(1000);
+	else
+		print_u1("lis3dh_init ok\r\n");
 	
-	nb_module_init();
-//	if(status == HAL_OK)
-//	{
-//			HAL_UART_Transmit(&huart1,(uint8_t*)"LIS3 INIT OK\r\n",strlen("LIS3 INIT OK\r\n"),1000);	//发送接收到的数据
-//			while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		HAL_Delay(5);//等待发送结束
-//	}
-//	else{
-//			HAL_UART_Transmit(&huart1,(uint8_t*)"LIS3 INIT fail\r\n",strlen("LIS3 INIT OK\r\n"),1000);	//发送接收到的数据
-//			while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)!=SET);		HAL_Delay(5);//等待发送结束
-//	}
-
-
+	nb_module_init();		//网络通信模块初始化
+	
+	ble_mode_init(3);	//设置本机蓝牙为从机	
+	
+//	BEEP_On(1000);
+	print_u1("runing...\r\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -183,17 +175,18 @@ int main(void)
 //				times = 0;
 //			HAL_Delay(10);   
 //		}
-
-		/*nb 模块连接测试,每隔10s发一条信息*/
-		if(times % 100 == 0)
+		if(KEY_FLAG == 1)
 		{
-//			send_msg_tcp_server("12345678");
-			print_u1("runing...\r\n");
+			KEY_FLAG = 0;
 		}
+		else
+		{
+			if(times == 65535)
+				times = 0;
+		}
+
 		times++;
-		if(times == 65535)
-			times = 0;
-		HAL_Delay(100);
+		HAL_Delay(10);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

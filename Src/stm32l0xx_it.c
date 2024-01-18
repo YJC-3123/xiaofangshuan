@@ -64,7 +64,7 @@
 extern UART_HandleTypeDef hlpuart1;
 extern UART_HandleTypeDef huart1;
 /* USER CODE BEGIN EV */
-
+extern uint8_t KEY_FLAG;
 extern GNRMC GPS;
 extern lis3dh_t g_lis3dh;
 
@@ -187,12 +187,11 @@ void EXTI4_15_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-	uint32_t timeout=0;
+
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
-		
-	timeout=0;
+	uint32_t timeout=0;
   while (HAL_UART_GetState(&huart1) != HAL_UART_STATE_READY)//等待就绪
 	{
 		timeout++;////超时处理
@@ -214,11 +213,11 @@ void USART1_IRQHandler(void)
 void LPUART1_IRQHandler(void)
 {
   /* USER CODE BEGIN LPUART1_IRQn 0 */
-	uint32_t timeout=0;
+
   /* USER CODE END LPUART1_IRQn 0 */
   HAL_UART_IRQHandler(&hlpuart1);
   /* USER CODE BEGIN LPUART1_IRQn 1 */
-	timeout=0;
+	uint32_t timeout=0;
   while (HAL_UART_GetState(&hlpuart1) != HAL_UART_STATE_READY)//等待就绪
 	{
 		timeout++;////超时处理
@@ -244,13 +243,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	{
 		HAL_Delay(100);	//消抖
 		//蜂鸣器
-		BEEP_On(1000);
+//		BEEP_On(1000);
 		
 		//获取模式选择状态
 		NB_4G_State = Get_Mode_State();
 		
 		//获取当前位置信息，时间
-//		GNSS_data_parse(uint8_t * buff_t)
+	//	GNSS_data_parse(uint8_t * buff_t)
 		
 		//获取姿态信息
 		lis3dh_get_xyz(&g_lis3dh);
@@ -261,14 +260,29 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		//获取水浸状态
 		Water_State = Get_Water_State();
 		
+		//蓝牙请求获取水压
+		print_u1("IT REQUEST\r\n");
+		connet_remote_ble();
+		HAL_Delay(1000);
+		send_remote_ble("GET_REQ\r\n");
+		
 		//向服TCP服务器发送信息
-		uint8_t msg[256];
-		sprintf(msg, "NB_4G:%d,Water:%d,Vol:%f,X:%d,Y:%d,Z:%d,Lon:,Lat:,Water_P:",NB_4G_State,Water_State,Voleage, g_lis3dh.x,g_lis3dh.y,g_lis3dh.z);
-		send_msg_tcp_server(msg);
+//		uint8_t msg[256];
+//		sprintf((char*)msg, "NB_4G:%d,Water:%d,Vol:%f,X:%d,Y:%d,Z:%d,Lon:,Lat:,Water_P:",NB_4G_State,Water_State,Voleage, g_lis3dh.x,g_lis3dh.y,g_lis3dh.z);
+//		send_msg_tcp_server(msg);
 	}
 	else if(GPIO_Pin == GPIO_PIN_5)		//蓝牙模块有数据需要传输
 	{
+		HAL_Delay(10);
+		uint8_t temp_buffer[128];
 		
+		//清空串口2的接收寄存器
+		HAL_StatusTypeDef status = HAL_UART_Receive(&huart2, temp_buffer, 128, 1000);
+//		__HAL_UART_FLUSH_DRREGISTER(&huart1);
+		memcpy(USART2_RX_BUF,temp_buffer,128);
+		uint8_t send_msg[128];
+		sprintf((char*)send_msg,"\r\nsta=%d\r\nrev:\r\n%s",status,USART2_RX_BUF);
+		print_u1(send_msg);
 	}
 }
 
@@ -306,7 +320,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				}		 
 			}
 		}
-
 	}
 	else if(huart->Instance == LPUART1) {
 		if((LPUSART1_RX_STA&0x8000)==0)//接收未完成
@@ -334,6 +347,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				}		 
 			}
 		}
+	} 
+	else if(huart->Instance == USART2){
+
 	}
 }
 

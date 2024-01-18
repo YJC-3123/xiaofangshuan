@@ -42,7 +42,7 @@ void MX_GPIO_Init(void);
 void BEEP_On(uint16_t on_time);
 uint8_t Get_Water_State(void);
 uint8_t Get_Mode_State(void);
-void set_reset_ble_brts(uint8_t val);
+void set_reset_brts(uint8_t val);
 void set_reset_net_module(uint8_t val);
 void set_reset_net_psm(uint8_t val);
 /* USER CODE END Prototypes */
