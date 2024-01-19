@@ -25,8 +25,10 @@
 GNRMC GPS;
 //TCP目标服务器的IP需要为公网IP，测试使用http://tt.ai-thinker.com:8000/ttcloud 给出的IP
 uint8_t tcp_server_ip[20] = "12.tcp.cpolar.top";
-uint16_t tcp_server_port = 11843;
+uint16_t tcp_server_port = 11331;
 uint8_t tcp_client_socket = 0;
+
+uint8_t REMOTE_MAC[64] = "0xBA03415FB9C1";
 
 /* USER CODE END 0 */
 
@@ -498,7 +500,7 @@ void ble_mode_init(uint8_t val){
 	send_msg_ble(msg);
 }
 
-uint8_t REMOTE_MAC[64] = "0xBA03415FB9C1";
+
 /*通过指定MAC地址连接远端蓝牙模块*/
 void connet_remote_ble(void)
 {
@@ -517,6 +519,7 @@ void discon_remote_ble(void)
 	}
 }
 
+/*蓝牙主机向蓝牙从机发送信息*/
 void send_remote_ble(uint8_t* msg){
 	//测试期间直接向所有主机发送消息：Todo：可通过查询已连接用户表确定向哪个主机发送信息
 	for(uint8_t idx=0;idx<1;idx++){

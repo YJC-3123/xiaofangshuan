@@ -246,7 +246,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	{
 		HAL_Delay(10);	//消抖
 		//蜂鸣器
-//		BEEP_On(1000);
+		BEEP_On(1000);
 		
 		//获取模式选择状态
 		NB_4G_State = Get_Mode_State();
@@ -287,12 +287,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	{
 //		HAL_Delay(50);	//加入延迟反而无法读取出内容
 		uint8_t temp_buffer[100];
-		//清空串口2的接收寄存器
 		HAL_StatusTypeDef status = HAL_UART_Receive(&huart2, temp_buffer, 100, 1000);
 		process_remote_ble_recv(temp_buffer);
 		
 		uint8_t send_msg[30];
-		sprintf((char*)send_msg,"\r\nget data == %s\r\n",Water_Pre);
+		sprintf((char*)send_msg,"\r\nget data == %s\r\n",temp_buffer);
 		print_u1(send_msg);
 	}
 }

@@ -128,10 +128,11 @@ int main(void)
 		print_u1("lis3dh_init ok\r\n");
 	
 	nb_module_init();		//网络通信模块初始化
-		
+	
 	ble_mode_init(3);	//设置本机蓝牙为从机	
 	
-//	BEEP_On(1000);
+	BEEP_On(1000);
+	HAL_Delay(100);
 	print_u1("runing...\r\n");
   /* USER CODE END 2 */
 
