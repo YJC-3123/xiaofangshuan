@@ -5,6 +5,7 @@
 "xiaofangshuan_test\adc.o"
 "xiaofangshuan_test\i2c.o"
 "xiaofangshuan_test\usart.o"
+"xiaofangshuan_test\tim.o"
 "xiaofangshuan_test\stm32l0xx_it.o"
 "xiaofangshuan_test\stm32l0xx_hal_msp.o"
 "xiaofangshuan_test\stm32l0xx_hal_adc.o"

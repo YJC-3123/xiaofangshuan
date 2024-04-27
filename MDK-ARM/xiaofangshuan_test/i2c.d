@@ -32,6 +32,8 @@ xiaofangshuan_test\i2c.o: ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_i2c.
 xiaofangshuan_test\i2c.o: ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_i2c_ex.h
 xiaofangshuan_test\i2c.o: ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_pwr.h
 xiaofangshuan_test\i2c.o: ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_pwr_ex.h
+xiaofangshuan_test\i2c.o: ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim.h
+xiaofangshuan_test\i2c.o: ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h
 xiaofangshuan_test\i2c.o: ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h
 xiaofangshuan_test\i2c.o: ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h
 xiaofangshuan_test\i2c.o: D:\Software\MDK\ARM\ARMCC\Bin\..\include\stdbool.h

@@ -63,22 +63,22 @@
 /* External variables --------------------------------------------------------*/
 extern UART_HandleTypeDef hlpuart1;
 extern UART_HandleTypeDef huart1;
+extern TIM_HandleTypeDef htim6;
 /* USER CODE BEGIN EV */
 extern uint8_t REC_FLAG;
 extern GNRMC GPS;
 extern lis3dh_t g_lis3dh;
-
-bool g_ble_recvbusy;
-
 extern uint8_t NB_4G_State;
 extern uint8_t Water_State;
 extern float Voleage;
 extern bool isGetWP;
 extern uint8_t Water_Pre[10];
-
 extern uint8_t it0_count;
+extern int32_t g_init_x;
+extern int32_t g_init_y;
+extern int32_t g_init_z;
 
-
+bool err_rpt_flag;		//标记从START开始是否已经上报过一次,防止重复上报
 uint8_t default_lon[] = "113.20E";
 uint8_t default_lat[] = "23.9N";
 /* USER CODE END EV */
@@ -192,6 +192,20 @@ void EXTI4_15_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles TIM6 global interrupt and DAC1/DAC2 underrun error interrupts.
+  */
+void TIM6_DAC_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+
+  /* USER CODE END TIM6_DAC_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim6);
+  /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+
+  /* USER CODE END TIM6_DAC_IRQn 1 */
+}
+
+/**
   * @brief This function handles USART1 global interrupt / USART1 wake-up interrupt through EXTI line 25.
   */
 void USART1_IRQHandler(void)
@@ -259,18 +273,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 			it0_count = 0;
 		++it0_count;
 		HAL_Delay(10);	//消抖
-		//蜂鸣器
-		BEEP_On(1000);
-		//获取模式选择状态
-		NB_4G_State = Get_Mode_State();	
-		//获取当前位置信息，时间
-		//GNSS_data_parse(uint8_t * buff_t);
-		//获取姿态信息
-		lis3dh_get_xyz(&g_lis3dh);
-		//获取电池电量信息
-		Voleage = get_voleage();
-		//获取水浸状态
-		Water_State = Get_Water_State();
+		BEEP_On(1000);	//蜂鸣器
+		
+		HAL_TIM_Base_Stop_IT(&htim6);
+		NB_4G_State = Get_Mode_State();	//获取模式选择状态
+		//GNSS_data_parse(uint8_t * buff_t);	//获取当前位置信息，时间
+		lis3dh_get_xyz(&g_lis3dh);	//获取姿态信息
+		Voleage = get_voleage();		//获取电池电量信息
+		Water_State = Get_Water_State();	//获取水浸状态
 		//连接远端蓝牙请求获取水压
 		isGetWP = false;
 		connet_remote_ble();
@@ -283,20 +293,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 			if(isGetWP == true)
 				break;
 		}
-		uint8_t msg[256];
-		sprintf((char*)msg, "#NB_4G:%d,Water:%d,Vol:%f,X:%d,Y:%d,Z:%d,Lon:%s,Lat:%s,Water_P:%s#",
-			NB_4G_State,Water_State,Voleage, g_lis3dh.x,g_lis3dh.y,g_lis3dh.z,default_lon, default_lat,Water_Pre);
-		send_msg_nbtcp_server(msg);
-		//开启蓝牙广播等待连接 //Todo:此处通过控制硬件接线ble模块en脚开启广播，软件开启蓝牙回复信息会导致中断嵌套
+		//开启蓝牙广播等待连接
 		send_msg_ble("TTM:ADV-1");
 	}
 	else if(GPIO_Pin == GPIO_PIN_5)		//蓝牙模块需要传输数据
 	{
-		g_ble_recvbusy = true;
 		uint8_t ble_recv_buffer[20];
 		memset(ble_recv_buffer,0,sizeof(ble_recv_buffer));
 		HAL_UART_Receive(&huart2, ble_recv_buffer, 20, 1000);
-		__HAL_UART_FLUSH_DRREGISTER(&huart1);
+		__HAL_UART_FLUSH_DRREGISTER(&huart2);
 		//向调试串口发送接收到的信息
 		uint8_t debug_msg[128];
 		sprintf((char*)debug_msg,"BLE:%s\n",ble_recv_buffer);
@@ -307,30 +312,65 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		{
 			return;
 		}
-		else if(msg_status == 1)
+		else if(msg_status == 1)	//用户断开连接
 		{
-
 			send_msg_ble("TTM:ADV-0");	//用户断开链接关闭广播
 		}
-		else if(msg_status == 2)	//收到GET命令
+		else if(msg_status == 2)	//收到CHECK命令
 		{	
-			NB_4G_State = Get_Mode_State();		//获取模式选择状态
-			//GNSS_data_parse(uint8_t * buff_t);	//获取当前位置信息，时间
-			lis3dh_get_xyz(&g_lis3dh);		//获取姿态信息
-			Voleage = get_voleage();		//获取电池电量信息
-			Water_State = Get_Water_State();	//获取水浸状态
+			NB_4G_State = Get_Mode_State();		
+			//GNSS_data_parse(uint8_t * buff_t);	
+			lis3dh_get_xyz(&g_lis3dh);
+			Voleage = get_voleage();
+			Water_State = Get_Water_State();
 			uint8_t msg[200];
 			sprintf((char*)msg, "[INFO]NB_4G:%d,Water:%d,Vol:%f,X:%d,Y:%d,Z:%d,Lon:%s,Lat:%s,WP:%s",
 				NB_4G_State,Water_State,Voleage, g_lis3dh.x,g_lis3dh.y,g_lis3dh.z,default_lon, default_lat,Water_Pre);
 			send_user_ble(msg);
-		}else if(msg_status == 3)
-		{	//收到START命令
+		}else if(msg_status == 3)		//收到START命令
+		{
+			//根据START前最后一次巡检的状态为初始状态,用户未巡检则为霍尔开关触发时采集的信息
+			g_init_x = g_lis3dh.x;
+			g_init_y = g_lis3dh.y;
+			g_init_z = g_lis3dh.z;
 
-		}else if(msg_status == 4)
-		{	//收到STOP命令
-
+			uint8_t msg[256];
+			sprintf((char*)msg, "#[normal]NB_4G:%d,Water:%d,Vol:%f,X:%d,Y:%d,Z:%d,Lon:%s,Lat:%s,Water_P:%s#",
+				NB_4G_State,Water_State,Voleage, g_lis3dh.x,g_lis3dh.y,g_lis3dh.z,default_lon, default_lat,Water_Pre);
+			send_msg_nbtcp_server(msg);
+			err_rpt_flag = false;
+			HAL_TIM_Base_Start_IT(&htim6);
 		}
-		g_ble_recvbusy = false;
+
+	}
+}
+
+
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	if(htim->Instance == htim6.Instance){
+			//检查系统信息
+			lis3dh_get_xyz(&g_lis3dh);
+			Voleage = get_voleage();
+			Water_State = Get_Water_State();
+			isGetWP = false;
+			connet_remote_ble();
+			HAL_Delay(1000);
+			send_remote_ble("#GET_REQ#");
+			for(uint8_t i=0;i<30;i++)
+			{
+				HAL_Delay(100);
+				if(isGetWP == true)
+					break;
+			}
+			//若有异常则直接上报
+			if(err_rpt_flag==false && check_error()==true){
+				uint8_t msg[256];
+				sprintf((char*)msg, "#[error]NB_4G:%d,Water:%d,Vol:%f,X:%d,Y:%d,Z:%d,Lon:%s,Lat:%s,Water_P:%s#",
+					NB_4G_State,Water_State,Voleage, g_lis3dh.x,g_lis3dh.y,g_lis3dh.z,default_lon, default_lat,Water_Pre);
+				send_msg_nbtcp_server(msg);
+				err_rpt_flag = true;
+			}
 	}
 }
 
@@ -341,7 +381,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	if(huart->Instance==USART1)//如果是串口1
+	if(huart->Instance==USART1)//如果是串口1(调试串口)
 	{
 		if((USART1_RX_STA&0x8000)==0)//接收未完成
 		{
@@ -368,7 +408,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			}
 		}
 	}
-	else if(huart->Instance == LPUART1) {
+	else if(huart->Instance == LPUART1) {		//低功耗串口(地理位置串口)
 		if((LPUSART1_RX_STA&0x8000)==0)//接收未完成
 		{
 			if(LPUSART1_RX_STA&0x4000)//接收到了0x0d

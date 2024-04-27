@@ -108,10 +108,10 @@ typedef struct{
 	void* i2c;	//IIC¾ä±ú
 	uint16_t i2c_addr;	//7bitIICµØÖ·
 
-	uint32_t x;
-	uint32_t y;
-	uint32_t z;
-	uint32_t t;
+	int32_t x;
+	int32_t y;
+	int32_t z;
+	int32_t t;
 	/* Buffer for data read from the device. Must be 6 bytes to ready XYZ data. */
 	uint16_t bufsize;
 	uint8_t *buf;

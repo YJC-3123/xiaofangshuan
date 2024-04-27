@@ -31,7 +31,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -83,6 +83,7 @@ extern uint8_t Water_State;
 extern float Voleage;
 extern uint8_t Water_Pre[10];
 uint8_t process_remote_ble_recv(uint8_t *buffer);
+bool check_error(void);
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

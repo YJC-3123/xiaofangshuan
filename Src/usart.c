@@ -24,8 +24,8 @@
 #define DELAY_TIME 1000
 GNRMC GPS;
 //TCP目标服务器的IP需要为公网IP，测试使用http://tt.ai-thinker.com:8000/ttcloud 给出的IP
-uint8_t tcp_server_ip[] = "cpolard.26.tcp.cpolar.top";
-uint16_t tcp_server_port = 11728;
+uint8_t tcp_server_ip[] = "20.tcp.cpolar.top";
+uint16_t tcp_server_port = 14698;
 uint8_t tcp_client_socket = 0;
 
 uint8_t REMOTE_MAC[64] = "0xBA03454151C1";
@@ -426,26 +426,28 @@ void GNSS_data_parse(uint8_t * buff_t) {
 
 
 void nb_module_init(){
-	//重置模块
+//	//重置模块
 	set_reset_net_module(0);
-	HAL_Delay(500);
+	HAL_Delay(3000);
 	set_reset_net_module(1);
-	HAL_Delay(500);
+	HAL_Delay(1500);
+//	print_u1("AT+CPIN?\r\n");
+//	HAL_Delay(1500);
 	//模块退出睡眠模式
 	set_reset_net_psm(0);
-	HAL_Delay(500);
+	HAL_Delay(1000);
 
 	//关闭回显
-	print_u1("ATE0\r\n");
-	HAL_Delay(DELAY_TIME);
+	print_u1("ATE1\r\n");
+	HAL_Delay(1000);
 	//禁止休眠(此处可能之前已经进入睡眠，故发两次，需优化)
 	print_u1("AT+QSCLK=0\r\n");
-	HAL_Delay(DELAY_TIME);
+	HAL_Delay(1000);
 	print_u1("AT+QSCLK=0\r\n");
-	HAL_Delay(DELAY_TIME);
+	HAL_Delay(1000);
 	//配置数据格式为文本
 	print_u1("AT+QICFG=\"dataformat\",0,0\r\n");
-	HAL_Delay(DELAY_TIME);
+	HAL_Delay(1000);
 }
 
 HAL_StatusTypeDef connect_tcp_server(void){

@@ -21,12 +21,14 @@
 #include "adc.h"
 #include "i2c.h"
 #include "usart.h"
+#include "tim.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "string.h"
 #include "stdio.h"
+#include "stdlib.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,25 +66,26 @@ uint8_t LPUSART1_TX_BUF[USART_REC_LEN];     //串口LP1完整数据发送缓冲
 uint8_t lp1_aRxBuffer[RXBUFFERSIZE];		//HAL库使用的串口LP1单字节接收缓冲
 
 uint8_t REC_FLAG = 0;		//霍尔开关是否被按下标志
-
 uint8_t NB_4G_State;		//通讯模式状态记录:1为4G，0为NB
 uint8_t Water_State;		//水浸状态记录：1为水浸，0为未水浸
 float Voleage;	//电池电量
 uint8_t Water_Pre[10];		//水压
 bool isGetWP;		//是否获得远端蓝牙水压数据标志
-
 uint8_t CPIN_FLAG;	//4G模块初始化检查sim卡标志
 uint8_t CREG_FLAG;	//4G模块初始化检查CS业务标志
 uint8_t CGREG_FLAG;	//4G模块初始化检查PS业务标志
 
-//bool g_usr_checkstatus = false;		//是否处在用户蓝牙连接巡检期间
-
-
 extern lis3dh_t g_lis3dh;	//姿态信息结构体
-extern UART_HandleTypeDef huart1;
-extern UART_HandleTypeDef huart1;
-
 uint8_t it0_count = 0;	//外部触发中断计数，用于防止霍尔开关触发两次
+
+//初始姿态
+int32_t g_init_x;
+int32_t g_init_y;
+int32_t g_init_z;
+
+
+
+extern UART_HandleTypeDef huart1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -129,20 +132,18 @@ int main(void)
   MX_USART2_UART_Init();
   MX_ADC_Init();
   MX_I2C1_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-	HAL_StatusTypeDef status;
-	status = lis3dh_init(&g_lis3dh, &hi2c1, lis3dh_buffer, 6);
+	HAL_StatusTypeDef status = lis3dh_init(&g_lis3dh, &hi2c1, lis3dh_buffer, 6);
 	if(status != HAL_OK)
 		print_u1("lis3dh_init fail\r\n");
 	else
 		print_u1("lis3dh_init ok\r\n");
 	
 	nb_module_init();		//网络通信模块初始化
-	
-	ble_mode_init(4);	//主控设置蓝牙为主从一体模式	
-	
+	ble_mode_init(4);	//主控设置蓝牙为主从一体模式
 	BEEP_On(1000);
-	HAL_Delay(100);
+	HAL_Delay(1000);
 	print_u1("runing...\r\n");
 
   /* USER CODE END 2 */
@@ -179,19 +180,6 @@ int main(void)
 //			HAL_Delay(10);   
 //		}
 
-//		if(g_usr_checkstatus == true){
-//			while(g_ble_recvbusy == true) HAL_Delay(5);
-//			isGetWP = false;
-//			connet_remote_ble();
-//			HAL_Delay(1000);		//Todo：此处通过延迟保证连接成功，应优化为检查连接状态
-//			send_remote_ble("#GET_REQ#");
-//			for(uint8_t i=0;i<30;i++)
-//			{
-//				HAL_Delay(100);
-//				if(isGetWP == true)
-//					break;
-//			}
-//		}
 		HAL_Delay(1000);
     /* USER CODE END WHILE */
 
@@ -299,6 +287,32 @@ uint8_t process_remote_ble_recv(uint8_t *buffer)
 		strncpy((char*)Water_Pre, pidx0+1, len);
 		return 6;
 }
+
+bool check_error(void){
+	//姿态偏离
+//	if((double)abs(g_lis3dh.x - g_init_x)/(double)g_init_x >= 0.3)
+//		return true;
+	if(((double)abs(g_lis3dh.y - g_init_y)/(double)g_init_y) >= 0.2)
+		return true;
+	if(((double)abs(g_lis3dh.z - g_init_z)/(double)g_init_z) >= 0.2)
+		return true;
+	//水浸
+	if(Water_State == 1)
+		return true;
+	//电压过低
+	if(Voleage < 3.0)
+		return true;
+	//水压过低
+	char* WP_endptr;
+	double WP_val = strtod((const char*)Water_Pre, &WP_endptr);
+	if(WP_endptr != (char*)Water_Pre)
+	{
+		if(WP_val <= 0.06 || WP_val >= 0.14)
+			return true;
+	}
+	return false;
+}
+
 /* USER CODE END 4 */
 
 /**
